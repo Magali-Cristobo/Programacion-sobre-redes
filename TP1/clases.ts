@@ -22,7 +22,7 @@ abstract class Titulo{// abstracta porque nunca la vamos a instanciar
     agregarRegion(region:Region){
         this.regiones.push(region);
     }
-    quitarRegion(region:Region){// ver si funciona
+    quitarRegion(region:Region){
         let posicionRegion:number = this.regiones.indexOf( region );
         this.regiones.splice( posicionRegion, 1 );
     }
@@ -102,7 +102,7 @@ export class Usuario{
         return this.username;
     }
     getRegion():Region{
-        return this.region; // me tira la pos del enum (0,1,2) no AR, BR, o CH
+        return this.region;
     }
     visto(titulo:Titulo):boolean{ // considero que si esta en el arreglo es porque ya la vio
         return this.titulosVistos.includes(titulo);
@@ -132,7 +132,7 @@ export class Usuario{
         if(this.titulosViendo.has(titulo)){
             tiempoVistoAnterior=this.titulosViendo.get(titulo);
         }
-        if(titulo.getDuracionTotal()<=tiempo_visualizado+tiempoVistoAnterior){
+        if(titulo.getDuracionTotal()<=tiempo_visualizado+tiempoVistoAnterior){ // si ya vio todo el titulo
             this.titulosVistos.push(titulo);
             this.titulosViendo.delete(titulo);
         }
