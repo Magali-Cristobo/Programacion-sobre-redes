@@ -31,8 +31,8 @@ var Titulo = /** @class */ (function () {
     Titulo.prototype.getTitulo = function () {
         return this.titulo;
     };
-    Titulo.prototype.setTitulo = function (tituloNuevo) {
-        this.titulo = tituloNuevo;
+    Titulo.prototype.setTitulo = function (nuevo) {
+        this.titulo = nuevo;
     };
     Titulo.prototype.disponible = function (region) {
         return this.regiones.includes(region);
@@ -41,8 +41,8 @@ var Titulo = /** @class */ (function () {
         this.regiones.push(region);
     };
     Titulo.prototype.quitarRegion = function (region) {
-        var posicionRegion = this.regiones.indexOf(region);
-        this.regiones.splice(posicionRegion, 1);
+        var posicionRegion = this.regiones.indexOf(region); //obtengo el indice de esa region
+        this.regiones.splice(posicionRegion, 1); //la saco del arreglo
     };
     Titulo.prototype.getDuracionTotal = function () {
         var duracion = 0;
@@ -50,6 +50,12 @@ var Titulo = /** @class */ (function () {
             duracion += contenidoActual.getDuracion();
         });
         return duracion;
+    };
+    Titulo.prototype.getContenidos = function () {
+        return this.contenidos;
+    };
+    Titulo.prototype.getRegiones = function () {
+        return this.regiones;
     };
     return Titulo;
 }());
@@ -59,10 +65,7 @@ var Pelicula = /** @class */ (function (_super) {
         return _super.call(this, titulo) || this;
     }
     Pelicula.prototype.setContenido = function (contenido) {
-        this.contenidos[0] = contenido;
-    };
-    Pelicula.prototype.getContenido = function () {
-        return this.contenidos[0];
+        this.getContenidos()[0] = contenido;
     };
     return Pelicula;
 }(Titulo));
@@ -87,16 +90,16 @@ var Serie = /** @class */ (function (_super) {
         return _super.call(this, titulo) || this;
     }
     Serie.prototype.agregarCapitulo = function (capitulo) {
-        this.contenidos.push(capitulo);
+        this.getContenidos().push(capitulo);
     };
     Serie.prototype.obtenerCapitulo = function (capitulo) {
-        return this.contenidos[capitulo];
+        return this.getContenidos()[capitulo];
     };
     Serie.prototype.cantidadDeCapitulos = function () {
-        return this.contenidos.length;
+        return this.getContenidos().length;
     };
     Serie.prototype.primerCapitulo = function () {
-        return this.contenidos[0];
+        return this.getContenidos()[0];
     };
     return Serie;
 }(Titulo));
@@ -112,7 +115,7 @@ var Usuario = /** @class */ (function () {
         return this.username;
     };
     Usuario.prototype.getRegion = function () {
-        return this.region; // me tira la pos del enum (0,1,2) no AR, BR, o CH
+        return this.region;
     };
     Usuario.prototype.visto = function (titulo) {
         return this.titulosVistos.includes(titulo);
@@ -122,32 +125,47 @@ var Usuario = /** @class */ (function () {
     };
     Usuario.prototype.capituloActual = function (serie) {
         var capitulo = 0;
-        var tiempoVistoSerie = this.titulosViendo.get(serie);
-        for (var i = 0; i < serie.contenidos.length; i++) {
-            if (serie.contenidos[i].getDuracion() > tiempoVistoSerie) {
-                return capitulo;
-            }
-            tiempoVistoSerie -= serie.contenidos[i].getDuracion();
-            capitulo++;
+        if (this.getTitulosViendo().has(serie)) {
+            capitulo = this.getTitulosViendo().get(serie)[0]; //podria retornar esto directamente, pero si no esta viendo la serie, va a dar error
         }
-        return 0;
+        return capitulo;
     };
-    Usuario.prototype.ver = function (titulo, tiempo_visualizado) {
+    Usuario.prototype.ver = function (titulo, tiempoVisualizado) {
+        var tiempoCapitulo = 0;
+        var capitulo = 0;
         var tiempoVistoAnterior = 0;
-        if (!titulo.regiones.includes(this.region)) {
+        if (!titulo.getRegiones().includes(this.region)) {
             return false;
         }
-        if (this.titulosViendo.has(titulo)) {
-            tiempoVistoAnterior = this.titulosViendo.get(titulo);
+        if (this.getTitulosViendo().has(titulo)) {
+            capitulo = this.getTitulosViendo().get(titulo)[0];
+            tiempoVistoAnterior = this.getTitulosViendo().get(titulo)[1];
         }
-        if (titulo.getDuracionTotal() <= tiempo_visualizado + tiempoVistoAnterior) {
+        if (titulo.getContenidos().length > 0) {
+            for (var i = capitulo; tiempoVisualizado > 0; i++) {
+                tiempoCapitulo = titulo.getContenidos()[i].getDuracion();
+                if (tiempoVisualizado + tiempoVistoAnterior >= tiempoCapitulo) {
+                    tiempoVisualizado = tiempoVisualizado + tiempoVistoAnterior - tiempoCapitulo;
+                    tiempoVistoAnterior = 0;
+                    this.getTitulosViendo().set(titulo, [i + 1, tiempoVisualizado]);
+                }
+                else {
+                    this.getTitulosViendo().set(titulo, [i, tiempoVisualizado + tiempoVistoAnterior]);
+                    tiempoVisualizado = 0;
+                }
+            }
+        }
+        if (this.getTitulosViendo().get(titulo)[0] > titulo.getContenidos().length - 1) { // si ya termino la serie/pelicula
             this.titulosVistos.push(titulo);
             this.titulosViendo["delete"](titulo);
         }
-        else {
-            this.titulosViendo.set(titulo, tiempo_visualizado + tiempoVistoAnterior);
-        }
         return true;
+    };
+    Usuario.prototype.getTitulosViendo = function () {
+        return this.titulosViendo;
+    };
+    Usuario.prototype.getTitulosVistos = function () {
+        return this.titulosVistos;
     };
     return Usuario;
 }());
@@ -158,10 +176,41 @@ var Sistema = /** @class */ (function () {
         this.usuarios = [];
     }
     Sistema.prototype.agregarUsuario = function (usuario) {
-        this.usuarios.push(usuario);
+        for (var i = 0; i < this.getUsuarios().length; i++) {
+            if (this.getUsuarios()[i].getUsername() == usuario.getUsername()) {
+                return false;
+            }
+        }
+        this.getUsuarios().push(usuario);
+        return true;
     };
     Sistema.prototype.agregarTitulo = function (titulo) {
         this.titulos.push(titulo);
+    };
+    Sistema.prototype.buscarUsuario = function (nombre) {
+        for (var i = 0; i < this.getUsuarios().length; i++) {
+            var usuarioActual = this.getUsuarios()[i];
+            if (usuarioActual.getUsername() == nombre) {
+                return usuarioActual;
+            }
+        }
+        return new Usuario("", 0);
+    };
+    Sistema.prototype.buscarTitulo = function (nombre) {
+        var titulos = [];
+        for (var i = 0; i < this.getTitulos().length; i++) {
+            var tituloActual = this.getTitulos()[i];
+            if (tituloActual.getTitulo() == nombre) {
+                titulos.push(tituloActual);
+            }
+        }
+        return titulos;
+    };
+    Sistema.prototype.getUsuarios = function () {
+        return this.usuarios;
+    };
+    Sistema.prototype.getTitulos = function () {
+        return this.titulos;
     };
     return Sistema;
 }());

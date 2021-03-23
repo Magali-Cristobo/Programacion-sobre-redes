@@ -62,3 +62,4 @@ if (mi_usuario.viendo(una_serie))
     console.log("Pepe ya dejó de ver la serie");
 if (!mi_usuario.visto(una_serie))
     console.log("Pepe vió la serie");
+console.log(IPMStreaming.buscarUsuario("Maga"));
