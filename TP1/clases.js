@@ -118,10 +118,10 @@ var Usuario = /** @class */ (function () {
         return this.region;
     };
     Usuario.prototype.visto = function (titulo) {
-        return this.titulosVistos.includes(titulo);
+        return this.getTitulosVistos().includes(titulo);
     };
     Usuario.prototype.viendo = function (titulo) {
-        return this.titulosViendo.has(titulo);
+        return this.getTitulosViendo().has(titulo);
     };
     Usuario.prototype.capituloActual = function (serie) {
         var capitulo = 0;
@@ -144,15 +144,46 @@ var Usuario = /** @class */ (function () {
         if (titulo.getContenidos().length > 0) {
             for (var i = capitulo; tiempoVisualizado > 0; i++) {
                 tiempoCapitulo = titulo.getContenidos()[i].getDuracion();
-                if (tiempoVisualizado + tiempoVistoAnterior >= tiempoCapitulo) {
-                    tiempoVisualizado = tiempoVisualizado + tiempoVistoAnterior - tiempoCapitulo;
+                if (tiempoVisualizado + tiempoVistoAnterior >= tiempoCapitulo) { //si terminaria el capitulo
+                    tiempoVisualizado = tiempoVisualizado + tiempoVistoAnterior - tiempoCapitulo; //el tiempo que me faltaria ver de otro capitulo
                     tiempoVistoAnterior = 0;
                     this.getTitulosViendo().set(titulo, [i + 1, tiempoVisualizado]);
                 }
                 else {
                     this.getTitulosViendo().set(titulo, [i, tiempoVisualizado + tiempoVistoAnterior]);
-                    tiempoVisualizado = 0;
+                    tiempoVisualizado = 0; //no queda mas tiempo por ver
                 }
+            }
+        }
+        if (this.getTitulosViendo().get(titulo)[0] > titulo.getContenidos().length - 1) { // si ya termino la serie/pelicula
+            this.titulosVistos.push(titulo);
+            this.titulosViendo["delete"](titulo);
+        }
+        return true;
+    };
+    Usuario.prototype.verb = function (titulo, tiempoVisualizado) {
+        var tiempoCapitulo = 0;
+        var capitulo = 0;
+        var tiempoVistoAnterior = 0;
+        if (!titulo.getRegiones().includes(this.region)) {
+            return false;
+        }
+        if (this.getTitulosViendo().has(titulo)) {
+            capitulo = this.getTitulosViendo().get(titulo)[0];
+            tiempoVistoAnterior = this.getTitulosViendo().get(titulo)[1]; // tiempo que ya vi de ese capitulo
+        }
+        if (titulo.getContenidos().length > 0) { // si el titulo que quiere ver tiene contenido
+            tiempoCapitulo = titulo.getContenidos()[capitulo].getDuracion();
+            if (tiempoVisualizado + tiempoVistoAnterior >= tiempoCapitulo) { //si terminaria el capitulo
+                for (var i = capitulo; tiempoVisualizado + tiempoVistoAnterior >= tiempoCapitulo; i++) {
+                    tiempoCapitulo = titulo.getContenidos()[i].getDuracion();
+                    tiempoVisualizado = tiempoVisualizado + tiempoVistoAnterior - tiempoCapitulo; //el tiempo que me faltaria ver de otro capitulo
+                    tiempoVistoAnterior = 0;
+                    this.getTitulosViendo().set(titulo, [i + 1, tiempoVisualizado]);
+                }
+            }
+            else {
+                this.getTitulosViendo().set(titulo, [capitulo, tiempoVisualizado + tiempoVistoAnterior]);
             }
         }
         if (this.getTitulosViendo().get(titulo)[0] > titulo.getContenidos().length - 1) { // si ya termino la serie/pelicula

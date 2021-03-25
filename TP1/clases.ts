@@ -120,11 +120,11 @@ export class Usuario{
     }
 
     visto(titulo:Titulo):boolean{ // considero que si esta en el arreglo es porque ya la vio
-        return this.titulosVistos.includes(titulo);
+        return this.getTitulosVistos().includes(titulo);
     }
     
     viendo(titulo:Titulo):boolean{ //lo mismo que en el anterior
-        return this.titulosViendo.has(titulo);
+        return this.getTitulosViendo().has(titulo);
     }
 
     capituloActual(serie:Titulo):number{ 
@@ -144,27 +144,26 @@ export class Usuario{
         }
         if(this.getTitulosViendo().has(titulo)){
             capitulo=this.getTitulosViendo().get(titulo)[0];
-            tiempoVistoAnterior=this.getTitulosViendo().get(titulo)[1];
+            tiempoVistoAnterior=this.getTitulosViendo().get(titulo)[1];// tiempo que ya vi de ese capitulo
         }
-        if(titulo.getContenidos().length>0){
-            for(let i:number=capitulo;tiempoVisualizado>0;i++){
-                tiempoCapitulo=titulo.getContenidos()[i].getDuracion();
-                if(tiempoVisualizado+tiempoVistoAnterior>=tiempoCapitulo){
-                    tiempoVisualizado=tiempoVisualizado+tiempoVistoAnterior-tiempoCapitulo;
+        if(titulo.getContenidos().length>0){// si el titulo que quiere ver tiene contenido
+            tiempoCapitulo=titulo.getContenidos()[capitulo].getDuracion();
+            if(tiempoVisualizado+tiempoVistoAnterior>=tiempoCapitulo){//si terminaria el capitulo
+                for(let i:number=capitulo;tiempoVisualizado+tiempoVistoAnterior>=tiempoCapitulo;i++){
+                    tiempoCapitulo=titulo.getContenidos()[i].getDuracion();
+                    tiempoVisualizado=tiempoVisualizado+tiempoVistoAnterior-tiempoCapitulo; //el tiempo que me faltaria ver de otro capitulo
                     tiempoVistoAnterior=0;
                     this.getTitulosViendo().set(titulo,[i+1,tiempoVisualizado]);
-                }
-                else{
-                    this.getTitulosViendo().set(titulo,[i,tiempoVisualizado+tiempoVistoAnterior]);
-                    tiempoVisualizado=0;
-                }
+                } 
+            }
+            else{
+                this.getTitulosViendo().set(titulo,[capitulo,tiempoVisualizado+tiempoVistoAnterior]);
             }
         }
         if(this.getTitulosViendo().get(titulo)[0]>titulo.getContenidos().length-1){// si ya termino la serie/pelicula
             this.titulosVistos.push(titulo);
             this.titulosViendo.delete(titulo);
         }
-       
         return true
     }
 
