@@ -52,5 +52,3 @@ if(!mi_usuario.visto(una_serie)) console.log("Pepe vió la serie");
 let prueba = new Pelicula("Lord of the computers");
 prueba.agregarRegion(Region.CH);
 IPMStreaming.agregarTitulo(prueba);
-
-mi_usuario.ver(prueba,5);

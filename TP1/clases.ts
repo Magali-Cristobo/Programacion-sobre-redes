@@ -145,7 +145,7 @@ export class Usuario{
                 this.titulosVistos.push(titulo);
                 this.titulosViendo.delete(titulo);
             }
-            else{
+            else{// si no termina la pelicula modifica el tiempo visto anterior
                 this.titulosViendo.set(titulo,[0,tiempoVisualizado]);
             }
         }
@@ -165,7 +165,7 @@ export class Usuario{
                 this.titulosVistos.push(titulo);
                 this.titulosViendo.delete(titulo);
             }
-            else{
+            else{// si no termina la serie modifica el capitulo actual y el tiempo que vio de este
                 this.getTitulosViendo().set(titulo,[capituloActual,tiempoVisualizado]);
             }
         }
@@ -191,10 +191,8 @@ export class Sistema{
     }
 
     agregarUsuario(usuario:Usuario):boolean{
-        for(let i=0;i<this.getUsuarios().length;i++){
-            if(this.getUsuarios()[i].getUsername()==usuario.getUsername()){
-                return false;
-            }
+        if(this.buscarUsuario(usuario.getUsername()).getUsername()!=""){
+            return false;
         }
         this.getUsuarios().push(usuario);
         return true;

@@ -182,10 +182,8 @@ var Sistema = /** @class */ (function () {
         this.usuarios = [];
     }
     Sistema.prototype.agregarUsuario = function (usuario) {
-        for (var i = 0; i < this.getUsuarios().length; i++) {
-            if (this.getUsuarios()[i].getUsername() == usuario.getUsername()) {
-                return false;
-            }
+        if (this.buscarUsuario(usuario.getUsername()).getUsername() != "") {
+            return false;
         }
         this.getUsuarios().push(usuario);
         return true;

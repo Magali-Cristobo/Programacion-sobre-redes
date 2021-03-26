@@ -65,4 +65,5 @@ if (!mi_usuario.visto(una_serie))
 var prueba = new clases_1.Pelicula("Lord of the computers");
 prueba.agregarRegion(clases_1.Region.CH);
 IPMStreaming.agregarTitulo(prueba);
-mi_usuario.ver(prueba, 5);
+var nuevo = new clases_1.Usuario("Maga", clases_1.Region.AR);
+console.log(IPMStreaming.agregarUsuario(nuevo));
