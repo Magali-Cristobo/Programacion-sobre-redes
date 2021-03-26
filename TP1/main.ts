@@ -48,3 +48,9 @@ if(mi_usuario.visto(una_serie)) console.log("Pepe todavía no terminó la serie"
 if(!mi_usuario.ver(una_serie, 5)) console.log("Pepe debería poder ver esa serie");
 if(mi_usuario.viendo(una_serie)) console.log("Pepe ya dejó de ver la serie");
 if(!mi_usuario.visto(una_serie)) console.log("Pepe vió la serie");
+
+let prueba = new Pelicula("Lord of the computers");
+prueba.agregarRegion(Region.CH);
+IPMStreaming.agregarTitulo(prueba);
+
+mi_usuario.ver(prueba,5);

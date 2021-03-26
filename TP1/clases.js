@@ -25,7 +25,6 @@ var Region;
 var Titulo = /** @class */ (function () {
     function Titulo(titulo) {
         this.regiones = [];
-        this.contenidos = [];
         this.titulo = titulo;
     }
     Titulo.prototype.getTitulo = function () {
@@ -44,16 +43,6 @@ var Titulo = /** @class */ (function () {
         var posicionRegion = this.regiones.indexOf(region); //obtengo el indice de esa region
         this.regiones.splice(posicionRegion, 1); //la saco del arreglo
     };
-    Titulo.prototype.getDuracionTotal = function () {
-        var duracion = 0;
-        this.contenidos.forEach(function (contenidoActual) {
-            duracion += contenidoActual.getDuracion();
-        });
-        return duracion;
-    };
-    Titulo.prototype.getContenidos = function () {
-        return this.contenidos;
-    };
     Titulo.prototype.getRegiones = function () {
         return this.regiones;
     };
@@ -64,8 +53,11 @@ var Pelicula = /** @class */ (function (_super) {
     function Pelicula(titulo) {
         return _super.call(this, titulo) || this;
     }
+    Pelicula.prototype.getContenido = function () {
+        return this.contenido;
+    };
     Pelicula.prototype.setContenido = function (contenido) {
-        this.getContenidos()[0] = contenido;
+        this.contenido = contenido;
     };
     return Pelicula;
 }(Titulo));
@@ -87,19 +79,24 @@ exports.Contenido = Contenido;
 var Serie = /** @class */ (function (_super) {
     __extends(Serie, _super);
     function Serie(titulo) {
-        return _super.call(this, titulo) || this;
+        var _this = _super.call(this, titulo) || this;
+        _this.capitulos = [];
+        return _this;
     }
     Serie.prototype.agregarCapitulo = function (capitulo) {
-        this.getContenidos().push(capitulo);
+        this.getCapitulos().push(capitulo);
     };
     Serie.prototype.obtenerCapitulo = function (capitulo) {
-        return this.getContenidos()[capitulo];
+        return this.getCapitulos()[capitulo];
     };
     Serie.prototype.cantidadDeCapitulos = function () {
-        return this.getContenidos().length;
+        return this.getCapitulos().length;
     };
     Serie.prototype.primerCapitulo = function () {
-        return this.getContenidos()[0];
+        return this.getCapitulos()[0];
+    };
+    Serie.prototype.getCapitulos = function () {
+        return this.capitulos;
     };
     return Serie;
 }(Titulo));
@@ -131,64 +128,42 @@ var Usuario = /** @class */ (function () {
         return capitulo;
     };
     Usuario.prototype.ver = function (titulo, tiempoVisualizado) {
-        var tiempoCapitulo = 0;
-        var capitulo = 0;
         var tiempoVistoAnterior = 0;
-        if (!titulo.getRegiones().includes(this.region)) {
+        if (!titulo.disponible(this.getRegion())) {
             return false;
         }
-        if (this.getTitulosViendo().has(titulo)) {
-            capitulo = this.getTitulosViendo().get(titulo)[0];
-            tiempoVistoAnterior = this.getTitulosViendo().get(titulo)[1];
-        }
-        if (titulo.getContenidos().length > 0) {
-            for (var i = capitulo; tiempoVisualizado > 0; i++) {
-                tiempoCapitulo = titulo.getContenidos()[i].getDuracion();
-                if (tiempoVisualizado + tiempoVistoAnterior >= tiempoCapitulo) { //si terminaria el capitulo
-                    tiempoVisualizado = tiempoVisualizado + tiempoVistoAnterior - tiempoCapitulo; //el tiempo que me faltaria ver de otro capitulo
-                    tiempoVistoAnterior = 0;
-                    this.getTitulosViendo().set(titulo, [i + 1, tiempoVisualizado]);
-                }
-                else {
-                    this.getTitulosViendo().set(titulo, [i, tiempoVisualizado + tiempoVistoAnterior]);
-                    tiempoVisualizado = 0; //no queda mas tiempo por ver
-                }
+        if (titulo instanceof Pelicula) {
+            if (this.viendo(titulo)) {
+                tiempoVistoAnterior = this.getTitulosViendo().get(titulo)[1];
             }
-        }
-        if (this.getTitulosViendo().get(titulo)[0] > titulo.getContenidos().length - 1) { // si ya termino la serie/pelicula
-            this.titulosVistos.push(titulo);
-            this.titulosViendo["delete"](titulo);
-        }
-        return true;
-    };
-    Usuario.prototype.verb = function (titulo, tiempoVisualizado) {
-        var tiempoCapitulo = 0;
-        var capitulo = 0;
-        var tiempoVistoAnterior = 0;
-        if (!titulo.getRegiones().includes(this.region)) {
-            return false;
-        }
-        if (this.getTitulosViendo().has(titulo)) {
-            capitulo = this.getTitulosViendo().get(titulo)[0];
-            tiempoVistoAnterior = this.getTitulosViendo().get(titulo)[1]; // tiempo que ya vi de ese capitulo
-        }
-        if (titulo.getContenidos().length > 0) { // si el titulo que quiere ver tiene contenido
-            tiempoCapitulo = titulo.getContenidos()[capitulo].getDuracion();
-            if (tiempoVisualizado + tiempoVistoAnterior >= tiempoCapitulo) { //si terminaria el capitulo
-                for (var i = capitulo; tiempoVisualizado + tiempoVistoAnterior >= tiempoCapitulo; i++) {
-                    tiempoCapitulo = titulo.getContenidos()[i].getDuracion();
-                    tiempoVisualizado = tiempoVisualizado + tiempoVistoAnterior - tiempoCapitulo; //el tiempo que me faltaria ver de otro capitulo
-                    tiempoVistoAnterior = 0;
-                    this.getTitulosViendo().set(titulo, [i + 1, tiempoVisualizado]);
-                }
+            tiempoVisualizado += tiempoVistoAnterior;
+            if (titulo.getContenido().getDuracion() <= tiempoVisualizado) { //si ya termino la pelicula
+                this.titulosVistos.push(titulo);
+                this.titulosViendo["delete"](titulo);
             }
             else {
-                this.getTitulosViendo().set(titulo, [capitulo, tiempoVisualizado + tiempoVistoAnterior]);
+                this.titulosViendo.set(titulo, [0, tiempoVisualizado]);
             }
         }
-        if (this.getTitulosViendo().get(titulo)[0] > titulo.getContenidos().length - 1) { // si ya termino la serie/pelicula
-            this.titulosVistos.push(titulo);
-            this.titulosViendo["delete"](titulo);
+        else if (titulo instanceof Serie) { //tengo que usar else if porque sino no me deja usar metodos que son exclusivos de la clase serie
+            var capitulos = titulo.getCapitulos();
+            var capituloActual = 0;
+            if (this.viendo(titulo)) {
+                capituloActual = this.getTitulosViendo().get(titulo)[0]; //capitulo que estoy viendo
+                tiempoVistoAnterior = this.getTitulosViendo().get(titulo)[1]; // tiempo que ya vi de ese capitulo
+            }
+            tiempoVisualizado += tiempoVistoAnterior;
+            for (var i = capituloActual, duracionCapitulo = capitulos[i].getDuracion(); tiempoVisualizado >= duracionCapitulo; i++) {
+                tiempoVisualizado -= duracionCapitulo; //el tiempo que me faltaria ver de otro capitulo
+                capituloActual++;
+            }
+            if (capituloActual > capitulos.length - 1) { // si ya termino la serie
+                this.titulosVistos.push(titulo);
+                this.titulosViendo["delete"](titulo);
+            }
+            else {
+                this.getTitulosViendo().set(titulo, [capituloActual, tiempoVisualizado]);
+            }
         }
         return true;
     };

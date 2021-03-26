@@ -3,10 +3,8 @@ export enum Region{AR,BR,CH}
 abstract class Titulo{// abstracta porque nunca la vamos a instanciar
     private titulo: string;
     private regiones:Array<Region>;
-    private contenidos:Array<Contenido>;
     constructor(titulo:string){
         this.regiones=[];
-        this.contenidos=[];
         this.titulo=titulo;
     }
     getTitulo():string{
@@ -30,18 +28,6 @@ abstract class Titulo{// abstracta porque nunca la vamos a instanciar
         this.regiones.splice(posicionRegion, 1 );//la saco del arreglo
     }
 
-    getDuracionTotal():number{
-        let duracion:number=0;
-        this.contenidos.forEach(contenidoActual => {
-            duracion+=contenidoActual.getDuracion();
-        });
-        return duracion;
-    }
-
-    getContenidos():Array<Contenido>{
-        return this.contenidos;
-    }
-
     getRegiones():Array<Region>{
         return this.regiones;
     }
@@ -49,12 +35,16 @@ abstract class Titulo{// abstracta porque nunca la vamos a instanciar
 }
 
 export class Pelicula extends Titulo{
+    private contenido:Contenido;
     constructor(titulo:string){
         super(titulo);
     }
+    getContenido():Contenido{
+        return this.contenido;
+    }
     
     setContenido(contenido:Contenido){
-        this.getContenidos()[0]=contenido;
+        this.contenido=contenido;
     }
 
 }
@@ -77,24 +67,30 @@ export class Contenido{
 
 
 export class Serie extends Titulo{
+    private capitulos:Array<Contenido>;
     constructor(titulo:string){
         super(titulo);
+        this.capitulos=[];
     }
 
     agregarCapitulo(capitulo:Contenido){
-        this.getContenidos().push(capitulo);
+        this.getCapitulos().push(capitulo);
     }
 
     obtenerCapitulo(capitulo:number):Contenido{
-        return this.getContenidos()[capitulo];
+        return this.getCapitulos()[capitulo];
     }
 
     cantidadDeCapitulos():number{
-        return this.getContenidos().length;
+        return this.getCapitulos().length;
     }
 
     primerCapitulo():Contenido{
-        return this.getContenidos()[0];
+        return this.getCapitulos()[0];
+    }
+
+    getCapitulos():Array<Contenido>{
+        return this.capitulos;
     }
 }
 
@@ -136,35 +132,44 @@ export class Usuario{
     }
 
     ver(titulo:Titulo, tiempoVisualizado:number):boolean{
-        let tiempoCapitulo:number=0;
-        let capitulo:number=0;
         let tiempoVistoAnterior:number=0;
-        if(!titulo.getRegiones().includes(this.region)){
+        if(!titulo.disponible(this.getRegion())){
             return false;
         }
-        if(this.getTitulosViendo().has(titulo)){
-            capitulo=this.getTitulosViendo().get(titulo)[0];
-            tiempoVistoAnterior=this.getTitulosViendo().get(titulo)[1];// tiempo que ya vi de ese capitulo
-        }
-        if(titulo.getContenidos().length>0){// si el titulo que quiere ver tiene contenido
-            tiempoCapitulo=titulo.getContenidos()[capitulo].getDuracion();
-            if(tiempoVisualizado+tiempoVistoAnterior>=tiempoCapitulo){//si terminaria el capitulo
-                for(let i:number=capitulo;tiempoVisualizado+tiempoVistoAnterior>=tiempoCapitulo;i++){
-                    tiempoCapitulo=titulo.getContenidos()[i].getDuracion();
-                    tiempoVisualizado=tiempoVisualizado+tiempoVistoAnterior-tiempoCapitulo; //el tiempo que me faltaria ver de otro capitulo
-                    tiempoVistoAnterior=0;
-                    this.getTitulosViendo().set(titulo,[i+1,tiempoVisualizado]);
-                } 
+        if(titulo instanceof Pelicula){
+            if(this.viendo(titulo)){
+                tiempoVistoAnterior=this.getTitulosViendo().get(titulo)[1];
+            }
+            tiempoVisualizado+=tiempoVistoAnterior;
+            if(titulo.getContenido().getDuracion()<=tiempoVisualizado){//si ya termino la pelicula
+                this.titulosVistos.push(titulo);
+                this.titulosViendo.delete(titulo);
             }
             else{
-                this.getTitulosViendo().set(titulo,[capitulo,tiempoVisualizado+tiempoVistoAnterior]);
+                this.titulosViendo.set(titulo,[0,tiempoVisualizado]);
             }
         }
-        if(this.getTitulosViendo().get(titulo)[0]>titulo.getContenidos().length-1){// si ya termino la serie/pelicula
-            this.titulosVistos.push(titulo);
-            this.titulosViendo.delete(titulo);
+        else if(titulo instanceof Serie){//tengo que usar else if porque sino no me deja usar metodos que son exclusivos de la clase serie
+            let capitulos:Array<Contenido>=titulo.getCapitulos();
+            let capituloActual:number=0;
+            if(this.viendo(titulo)){
+                capituloActual=this.getTitulosViendo().get(titulo)[0]; //capitulo que estoy viendo
+                tiempoVistoAnterior=this.getTitulosViendo().get(titulo)[1];// tiempo que ya vi de ese capitulo
+            }
+            tiempoVisualizado+=tiempoVistoAnterior;
+            for(let i:number=capituloActual, duracionCapitulo=capitulos[i].getDuracion();tiempoVisualizado>=duracionCapitulo;i++){
+                tiempoVisualizado-=duracionCapitulo; //el tiempo que me faltaria ver de otro capitulo
+                capituloActual++;
+            } 
+            if(capituloActual>capitulos.length-1){// si ya termino la serie
+                this.titulosVistos.push(titulo);
+                this.titulosViendo.delete(titulo);
+            }
+            else{
+                this.getTitulosViendo().set(titulo,[capituloActual,tiempoVisualizado]);
+            }
         }
-        return true
+        return true;
     }
 
     getTitulosViendo():Map<Titulo,[number,number]>{
@@ -199,7 +204,7 @@ export class Sistema{
         this.titulos.push(titulo);
     }
 
-    buscarUsuario(nombre:string):Usuario{//ver como hacer cuando no existe el usuario
+    buscarUsuario(nombre:string):Usuario{
         for(let i=0;i<this.getUsuarios().length;i++){
             let usuarioActual:Usuario=this.getUsuarios()[i];
             if(usuarioActual.getUsername()==nombre){
