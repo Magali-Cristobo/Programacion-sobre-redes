@@ -142,28 +142,27 @@ export class Usuario{
             }
             tiempoVisualizado+=tiempoVistoAnterior;
             if(titulo.getContenido().getDuracion()<=tiempoVisualizado){//si ya termino la pelicula
-                this.titulosVistos.push(titulo);
-                this.titulosViendo.delete(titulo);
+                this.getTitulosVistos().push(titulo);
+                this.getTitulosViendo().delete(titulo);
             }
             else{// si no termina la pelicula modifica el tiempo visto anterior
-                this.titulosViendo.set(titulo,[0,tiempoVisualizado]);
+                this.getTitulosViendo().set(titulo,[0,tiempoVisualizado]);
             }
         }
         else if(titulo instanceof Serie){//tengo que usar else if porque sino no me deja usar metodos que son exclusivos de la clase serie
-            let capitulos:Array<Contenido>=titulo.getCapitulos();
             let capituloActual:number=0;
             if(this.viendo(titulo)){
                 capituloActual=this.getTitulosViendo().get(titulo)[0]; //capitulo que estoy viendo
                 tiempoVistoAnterior=this.getTitulosViendo().get(titulo)[1];// tiempo que ya vi de ese capitulo
             }
             tiempoVisualizado+=tiempoVistoAnterior;
-            for(let i:number=capituloActual, duracionCapitulo=capitulos[i].getDuracion();tiempoVisualizado>=duracionCapitulo;i++){
+            for(let i:number=capituloActual, duracionCapitulo=titulo.obtenerCapitulo(i).getDuracion();tiempoVisualizado>=duracionCapitulo;i++){
                 tiempoVisualizado-=duracionCapitulo; //el tiempo que me faltaria ver de otro capitulo
                 capituloActual++;
             } 
-            if(capituloActual>capitulos.length-1){// si ya termino la serie
-                this.titulosVistos.push(titulo);
-                this.titulosViendo.delete(titulo);
+            if(capituloActual>titulo.cantidadDeCapitulos()-1){// si ya termino la serie
+                this.getTitulosVistos().push(titulo);
+                this.getTitulosViendo().delete(titulo);
             }
             else{// si no termina la serie modifica el capitulo actual y el tiempo que vio de este
                 this.getTitulosViendo().set(titulo,[capituloActual,tiempoVisualizado]);
