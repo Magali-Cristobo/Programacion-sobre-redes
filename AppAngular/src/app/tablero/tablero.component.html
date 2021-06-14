@@ -1,0 +1,4 @@
+<h2 *ngIf="ganador">
+    El jugador {{ ganador }} gano la partida
+</h2>
+<main><casilla *ngFor="let estado of estados; let i=index" valor={{estado}} (click)="mover(i)"></casilla></main>
