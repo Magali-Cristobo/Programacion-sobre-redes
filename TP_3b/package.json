@@ -1,0 +1,24 @@
+{
+  "name": "tp_3",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^15.0.1",
+    "@types/webpack-env": "^1.16.0"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "cluster": "^0.7.7",
+    "cron": "^1.8.2",
+    "express": "^4.17.1",
+    "http": "*",
+    "mysql": "^2.18.1",
+    "typescript": "^4.2.4"
+  }
+}

@@ -1,0 +1,19 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="https://storage.googleapis.com/code.getmdl.io/1.0.0/material.indigo-pink.min.css">
+    </head>
+    <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+    <body>
+        <br>
+        <h4>Seleccioná tus butacas:</h4>
+        <br>
+        <div class="demo-grid-ruler mdl-grid">
+            <div  *ngFor="let butaca of butacas; let i=index" (click)="elegirButaca(butaca)" [ngClass]="{'butacasElegidas':this.estados.get(butaca)}" class="mdl-cell mdl-cell--1-col butacasDisponibles">{{butaca}}</div> 
+            <div *ngFor="let butaca of butacasOcupadas; let i=index" style="background-color: red;"  class="mdl-cell mdl-cell--1-col">{{butaca}}</div>
+        </div>
+        <br>
+        <button class="btn" type="button" (click)="reservar(this.idFuncion, 10,this.butacasAReservar)"><span>Reservar</span></button>
+        <p style="text-align: center">{{this.respuesta}}</p>
+    </body>
+</html>

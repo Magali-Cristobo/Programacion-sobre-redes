@@ -1,0 +1,56 @@
+.mdl-grid {
+    padding: 0!important;
+}
+  
+.mdl-cell {
+    box-sizing: border-box;
+    background-color: #BDBDBD;
+    height: 100px;
+    padding-left: 8px;
+    padding-top: 4px;
+    color: white;
+}
+
+.butacasDisponibles:hover {
+    background-color: green;
+    opacity: 0.5;
+}
+.butacasElegidas, .btn:hover{
+    background-color: green;
+}
+
+.btn {
+    position: relative;
+    display: block;
+    right: 10px;
+    margin: 30px auto;
+    padding: 0;
+
+    overflow: hidden;
+
+    border-width: 0;
+    outline: none;
+    border-radius: 9px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .6);
+
+    background-color: grey;
+    color: white;
+    display: block;
+    padding: 20px 30px;
+    transition: background-color .3s;
+    font-size: 16px;
+}
+
+.mdl-cell {
+    border-radius: 8px;
+    font-size: 20px;
+    line-height: 32px;
+    font-weight: 400;
+    text-align: center;
+    vertical-align: middle;
+}
+
+h4{
+    font-weight: bold; 
+    text-decoration: underline;
+}

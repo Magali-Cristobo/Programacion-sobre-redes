@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es5",
+    "lib": ["ES2018","DOM"]
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "files": [
+    "main.ts",
+    "Favorito.ts",
+    "Usuario.ts",
+    "Tabla.ts",
+    "Producto.ts",
+    "Compra.ts",
+    "CalificacionComprador.ts",
+    "CalificacionVendedor.ts",
+    "Favorito"
+  ]
+}

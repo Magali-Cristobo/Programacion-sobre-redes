@@ -1,0 +1,16 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+        <link rel="stylesheet" href="https://storage.googleapis.com/code.getmdl.io/1.0.0/material.indigo-pink.min.css">
+        <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+    </head>
+    <body>        
+        <h3>Películas en cartelera</h3>
+        <div class="demo-grid-2 mdl-grid">
+            <div *ngFor="let funcion of funciones; let i=index" class="mdl-cell mdl-cell--2-col"><img [routerLink]="['/reservar', funcion.id, funcion.butacas_disponibles, funcion.sala]" src={{funcion.imagen}}></div>
+        </div>
+        
+        <h5 class="seleccionarPelicula"><span>Click en la película que querés ver</span></h5>
+    </body>
+</html>
