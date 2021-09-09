@@ -1,24 +1,24 @@
 "use strict";
 exports.__esModule = true;
-var clases_1 = require("./clases");
-var IPMStreaming = new clases_1.Sistema();
+var clasesEntregado_1 = require("./clasesEntregado");
+var IPMStreaming = new clasesEntregado_1.Sistema();
 // Usuario de Argentina
-var mi_usuario = new clases_1.Usuario("Pepe", clases_1.Region.AR);
+var mi_usuario = new clasesEntregado_1.Usuario("Pepe", clasesEntregado_1.Region.AR);
 IPMStreaming.agregarUsuario(mi_usuario);
 // Usuario de Chile
-var otro_usuario = new clases_1.Usuario("Juan", clases_1.Region.CH);
+var otro_usuario = new clasesEntregado_1.Usuario("Juan", clasesEntregado_1.Region.CH);
 IPMStreaming.agregarUsuario(otro_usuario);
 // Pelicula de 140 minutos disponible para Chile
-var una_peli = new clases_1.Pelicula("Lord of the computers");
-una_peli.setContenido(new clases_1.Contenido(140));
-una_peli.agregarRegion(clases_1.Region.CH);
+var una_peli = new clasesEntregado_1.Pelicula("Lord of the computers");
+una_peli.setContenido(new clasesEntregado_1.Contenido(140));
+una_peli.agregarRegion(clasesEntregado_1.Region.CH);
 IPMStreaming.agregarTitulo(una_peli);
 // Serie de 3 capitulos disponible para Argentina
-var una_serie = new clases_1.Serie("The Programmer");
-una_serie.agregarCapitulo(new clases_1.Contenido(54)); // Capitulo 0 de 54 minutos.
-una_serie.agregarCapitulo(new clases_1.Contenido(47)); // Capitulo 1 de 47 minutos.
-una_serie.agregarCapitulo(new clases_1.Contenido(50)); // Capitulo 2 de 50 minutos.
-una_serie.agregarRegion(clases_1.Region.AR);
+var una_serie = new clasesEntregado_1.Serie("The Programmer");
+una_serie.agregarCapitulo(new clasesEntregado_1.Contenido(54)); // Capitulo 0 de 54 minutos.
+una_serie.agregarCapitulo(new clasesEntregado_1.Contenido(47)); // Capitulo 1 de 47 minutos.
+una_serie.agregarCapitulo(new clasesEntregado_1.Contenido(50)); // Capitulo 2 de 50 minutos.
+una_serie.agregarRegion(clasesEntregado_1.Region.AR);
 IPMStreaming.agregarTitulo(una_serie);
 // Pruebas para la pelicula
 if (mi_usuario.ver(una_peli, 140))
